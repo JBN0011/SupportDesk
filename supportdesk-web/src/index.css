@@ -26,3 +26,6 @@ th, td { text-align:left; padding:.6rem .75rem; border-bottom:1px solid var(--li
 .desc { white-space:pre-wrap; background:#fff; border:1px solid var(--line); padding:1rem; border-radius:6px; }
 .comment { background:#fff; border-left:3px solid var(--accent); padding:.5rem 1rem; margin:.75rem 0; } .comment p { margin:.25rem 0 0; }
 @media (prefers-reduced-motion: no-preference) { button { transition: opacity .15s; } }
+.filters { justify-content:flex-start; } .filters input[placeholder] { min-width:180px; }
+.check { font-weight:400; } .card { background:#fff; border:1px solid var(--line); border-radius:6px; padding:.5rem 1rem; margin:.75rem 0; }
+.stat { display:flex; justify-content:space-between; margin:.25rem 0; max-width:360px; } .stat span { color:#5a6866; }

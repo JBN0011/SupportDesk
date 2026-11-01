@@ -32,3 +32,13 @@ export async function api(path, options = {}) {
   if (res.status === 204) return null; // success with no body
   return res.json();
 }
+
+// The token's middle part is JSON with the user id in "sub". Used for "assign to me".
+export function getUserId() {
+  const s = getSession();
+  if (!s) return null;
+  try {
+    const part = s.token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return Number(JSON.parse(atob(part)).sub);
+  } catch { return null; }
+}

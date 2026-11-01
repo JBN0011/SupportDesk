@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api, saveSession } from "../api";
 
 export default function Login() {
@@ -40,6 +40,7 @@ export default function Login() {
         {error && <p className="error">{error}</p>}
         <button disabled={busy}>{busy ? "Signing in..." : "Sign in"}</button>
       </form>
+      <p>New here? <Link to="/register">Create an account</Link></p>
     </div>
   );
 }

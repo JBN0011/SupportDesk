@@ -1,46 +1,61 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api";
+import { api, getSession } from "../api";
 
 const PAGE_SIZE = 10;
 const STATUSES = ["", "Open", "InProgress", "Resolved", "Closed"];
+const PRIORITIES = ["", "Low", "Medium", "High", "Urgent"];
+const CATEGORIES = ["", "Bug", "Billing", "Account", "FeatureRequest", "Other"];
+
+function Pick({ label, value, onChange, options }) {
+  return (
+    <label className="inline">{label}
+      <select value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => <option key={o} value={o}>{o || "All"}</option>)}
+      </select>
+    </label>
+  );
+}
 
 export default function Tickets() {
+  const staff = getSession().role !== "Customer";
   const [tickets, setTickets] = useState([]);
-  const [status, setStatus] = useState("");
+  const [f, setF] = useState({ status: "", priority: "", category: "", search: "", mine: false });
   const [page, setPage] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Runs again whenever status or page changes.
+  const change = (k) => (v) => { setF({ ...f, [k]: v }); setPage(1); };
+
   useEffect(() => {
     setLoading(true);
     const q = new URLSearchParams({ page, pageSize: PAGE_SIZE });
-    if (status) q.set("status", status);
+    ["status", "priority", "category", "search"].forEach((k) => f[k] && q.set(k, f[k]));
+    if (f.mine) q.set("assignedToMe", "true");
     api(`/api/tickets?${q}`)
-      .then((data) => {
-        // Works whether the API returns a plain list or { items: [...] }
-        setTickets(Array.isArray(data) ? data : data.items ?? data.tickets ?? []);
-        setError("");
-      })
+      .then((data) => { setTickets(Array.isArray(data) ? data : data.items ?? data.tickets ?? []); setError(""); })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [status, page]);
+  }, [f, page]);
 
   return (
     <>
-      <div className="row">
-        <h1>Tickets</h1>
-        <label className="inline">Status
-          <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
-            {STATUSES.map((s) => <option key={s} value={s}>{s || "All"}</option>)}
-          </select>
-        </label>
+      <h1>Tickets</h1>
+      <div className="row filters">
+        <Pick label="Status" value={f.status} onChange={change("status")} options={STATUSES} />
+        <Pick label="Priority" value={f.priority} onChange={change("priority")} options={PRIORITIES} />
+        <Pick label="Category" value={f.category} onChange={change("category")} options={CATEGORIES} />
+        <input placeholder="Search tickets" value={f.search} onChange={(e) => change("search")(e.target.value)} />
+        {staff && (
+          <label className="inline check">
+            <input type="checkbox" checked={f.mine} onChange={(e) => change("mine")(e.target.checked)} /> Assigned to me
+          </label>
+        )}
       </div>
 
       {error && <p className="error">{error}</p>}
       {loading ? <p>Loading...</p> : tickets.length === 0 ? (
-        <p className="empty">No tickets found. Try a different status filter.</p>
+        <p className="empty">No tickets match these filters. Clear a filter to see more.</p>
       ) : (
         <table>
           <thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Priority</th><th>Category</th></tr></thead>
