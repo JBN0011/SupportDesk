@@ -69,6 +69,15 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+const string FrontendPolicy = "Frontend";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendPolicy, policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 // Create or update the database and add the first admin
@@ -86,6 +95,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(FrontendPolicy);
 app.UseAuthentication();   // who are you?
 app.UseAuthorization();    // are you allowed?
 app.MapControllers();
