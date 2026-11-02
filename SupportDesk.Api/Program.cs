@@ -70,10 +70,13 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 const string FrontendPolicy = "Frontend";
+var origins = (builder.Configuration["Cors:Origins"] ?? "http://localhost:5173")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(FrontendPolicy, policy =>
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(origins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
