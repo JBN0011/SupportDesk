@@ -1,5 +1,5 @@
 // All calls to the SupportDesk API live in this one file.
-export const API_URL = "https://localhost:7080";
+export const API_URL = import.meta.env.VITE_API_URL ?? "https://localhost:7080";
 
 export function getSession() {
   const raw = localStorage.getItem("session");
